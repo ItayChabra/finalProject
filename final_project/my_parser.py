@@ -117,31 +117,32 @@ class Parser:
         def parse_term():
             if self.current_token[0] == 'IDENTIFIER':
                 if (self.pos + 1 < len(self.tokens) and self.tokens[self.pos + 1][0] == 'LPAREN'):
-                    print("Detected function call")
                     return self.parse_function_call()
                 identifier = Variable(self.current_token[1])
                 self.eat('IDENTIFIER')
-                print(f"Parsed identifier: {identifier}")
                 return identifier
 
             if self.current_token[0] == 'INTEGER':
                 number = Number(self.current_token[1])
                 self.eat('INTEGER')
-                print(f"Parsed integer: {number}")
                 return number
 
             if self.current_token[0] == 'BOOLEAN':
                 boolean = Boolean(self.current_token[1])
                 self.eat('BOOLEAN')
-                print(f"Parsed boolean: {boolean}")
                 return boolean
 
             if self.current_token[0] == 'LPAREN':
                 self.eat('LPAREN')
                 expr = self.parse_expression()
                 self.eat('RPAREN')
-                print(f"Parsed expression in parentheses: {expr}")
                 return expr
+
+            if self.current_token[0] == 'LAMBDA':
+                return self.parse_lambda_expr()
+
+            if self.current_token[0] == 'IF':
+                return self.parse_if_expr()
 
             raise Exception(f"Unexpected token: {self.current_token}")
 
