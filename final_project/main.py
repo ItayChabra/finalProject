@@ -30,11 +30,11 @@ def main():
         # Function definition
         '''
         Defun {name: factorial, arguments: (n,y,)}
-        (n == 0) || (n * factorial(y - 1))
+        (n == 0) || (n * factorial(y - 1,0,))
         ''',
         # Lambda expression
         '''
-        Lambd x. (Lambd y. (x + y))
+        (Lambd x.(Lambd y.(x+y)))
         ''',
         # Function application
         '''
