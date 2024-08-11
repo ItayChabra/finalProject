@@ -1,0 +1,41 @@
+<program> ::= <statement> | <statement> <program>
+
+<statement> ::= <function_def> | <expression> | <if_expr> | <lambda_expr> | <recursion>
+
+<function_def> ::= "fn" <identifier> "(" <params>? ")" "=" <expression>
+
+<lambda_expr> ::= "lambda" <params>? ":" <expression>
+
+<if_expr> ::= "if" <expression> "then" <expression> "else" <expression>
+
+<recursion> ::= "rec" <identifier> "(" <params>? ")" "=" <expression>
+
+<expression> ::= <arithmetic_expr> | <boolean_expr> | <comparison_expr> | <function_call> | <identifier> | <literal>
+
+<arithmetic_expr> ::= <term> | <term> <arithmetic_op> <arithmetic_expr>
+
+<boolean_expr> ::= <term> | <term> <boolean_op> <boolean_expr> | "!" <term>
+
+<comparison_expr> ::= <term> | <term> <comparison_op> <comparison_expr>
+
+<function_call> ::= <identifier> "(" <args>? ")"
+
+<params> ::= <identifier> | <identifier> "," <params>
+
+<args> ::= <expression> | <expression> "," <args>
+
+<arithmetic_op> ::= "+" | "-" | "*" | "/" | "%"
+
+<boolean_op> ::= "&&" | "||"
+
+<comparison_op> ::= "==" | "!=" | ">" | "<" | ">=" | "<="
+
+<literal> ::= <integer> | <boolean>
+
+<identifier> ::= /[a-zA-Z_][a-zA-Z_0-9]*/
+
+<integer> ::= /-?\d+/
+
+<boolean> ::= "TRUE" | "FALSE"
+
+<term> ::= <identifier> | <literal> | "(" <expression> ")"
