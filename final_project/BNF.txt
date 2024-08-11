@@ -1,24 +1,20 @@
 <program> ::= <statement> | <statement> <program>
 
-<statement> ::= <function_def> | <expression> | <if_expr> | <lambda_expr> | <recursion>
+<statement> ::= <function_def> | <lambda_expr> | <function_call> | <boolean_expr> | <arithmetic_expr>
 
-<function_def> ::= "fn" <identifier> "(" <params>? ")" "=" <expression>
+<function_def> ::= "Defun" "{" "name" ":" <identifier> "," "arguments" ":" <params> "," "}" <expression>
 
-<lambda_expr> ::= "lambda" <params>? ":" <expression>
+<lambda_expr> ::= "Lambd" <params> "." <expression>
 
-<if_expr> ::= "if" <expression> "then" <expression> "else" <expression>
+<function_call> ::= <identifier> "(" <args>? ")"
 
-<recursion> ::= "rec" <identifier> "(" <params>? ")" "=" <expression>
-
-<expression> ::= <arithmetic_expr> | <boolean_expr> | <comparison_expr> | <function_call> | <identifier> | <literal>
+<expression> ::= <arithmetic_expr> | <boolean_expr> | <function_call> | <lambda_expr> | <identifier> | <literal>
 
 <arithmetic_expr> ::= <term> | <term> <arithmetic_op> <arithmetic_expr>
 
 <boolean_expr> ::= <term> | <term> <boolean_op> <boolean_expr> | "!" <term>
 
 <comparison_expr> ::= <term> | <term> <comparison_op> <comparison_expr>
-
-<function_call> ::= <identifier> "(" <args>? ")"
 
 <params> ::= <identifier> | <identifier> "," <params>
 

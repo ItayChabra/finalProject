@@ -27,21 +27,26 @@ def main():
 
     # Define various test cases
     test_cases = [
-        # Simple function definition
+        # Function definition
         '''
-        fn add(x, y) = x + y
+        Defun {name: factorial, arguments: (n,y,)}
+        (n == 0) || (n * factorial(y - 1))
         ''',
         # Lambda expression
         '''
-        lambda x : x > 0 && TRUE
+        Lambd x. (Lambd y. (x + y))
         ''',
-        # Conditional expression
+        # Function application
         '''
-        if x < 10 then lambda y: 0 else lambda z: 1
+        factorial(5)
         ''',
-        # Recursion example
+        # Boolean operations
         '''
-        rec factorial(n) = if n == 0 then lambda x: 1 else lambda m: n * factorial(m - 1)
+        (x > 0) && (y < 10)
+        ''',
+        # Arithmetic operations
+        '''
+        (3 + 4) * (2 - 1)
         '''
     ]
 

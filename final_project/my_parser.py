@@ -1,5 +1,4 @@
-from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable, Number, Boolean, Call, IfExpr
-
+from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable, Number, Boolean, Call
 
 class Parser:
     def __init__(self, tokens, bnf_file_path):
@@ -45,62 +44,49 @@ class Parser:
 
     def parse_statement(self):
         print(f"Parsing statement with token: {self.current_token}")  # Debug print
-        if self.current_token[0] == 'FN':
+        if self.current_token[0] == 'DEFUN':
             return self.parse_function_def()
         elif self.current_token[0] == 'LAMBDA':
             return self.parse_lambda_expr()
-        elif self.current_token[0] == 'IF':
-            return self.parse_if_expr()
-        elif self.current_token[0] == 'REC':
-            return self.parse_recursion()
         else:
             return self.parse_expression()
 
     def parse_function_def(self):
-        self.eat('FN')
+        self.eat('DEFUN')
+        self.eat('LBRACE')
+        self.eat('IDENTIFIER')  # 'name'
+        self.eat('COLON')
         func_name = self.current_token[1]
         self.eat('IDENTIFIER')
-        self.eat('LPAREN')
+        self.eat('COMMA')
+        self.eat('IDENTIFIER')  # 'arguments'
+        self.eat('COLON')
         params = self.parse_params()
-        self.eat('RPAREN')
-        self.eat('ASSIGN')
+        self.eat('RBRACE')
         body = self.parse_expression()
         return FunctionDef(func_name, params, body)
 
     def parse_lambda_expr(self):
         self.eat('LAMBDA')
-        params = self.parse_params()
-        self.eat('COLON')  # assuming there is a COLON token for lambda syntax
-        body = self.parse_expression()
-        return LambdaExpr(params, body)
-
-    def parse_if_expr(self):
-        self.eat('IF')
-        condition = self.parse_expression()
-        self.eat('THEN')
-        then_branch = self.parse_expression()
-        self.eat('ELSE')
-        else_branch = self.parse_expression()
-        return IfExpr(condition, then_branch, else_branch)
-
-    def parse_recursion(self):
-        self.eat('REC')
-        func_name = self.current_token[1]
-        self.eat('IDENTIFIER')
-        self.eat('LPAREN')
-        params = self.parse_params()
-        self.eat('RPAREN')
-        self.eat('ASSIGN')
-        body = self.parse_expression()
-        return FunctionDef(func_name, params, body)  # or another ASTNode for recursion
-
-    def parse_params(self):
         params = []
         while self.current_token[0] == 'IDENTIFIER':
             params.append(self.current_token[1])
             self.eat('IDENTIFIER')
             if self.current_token[0] == 'COMMA':
                 self.eat('COMMA')
+        self.eat('DOT')
+        body = self.parse_expression()
+        return LambdaExpr(params, body)
+
+    def parse_params(self):
+        params = []
+        self.eat('LPAREN')
+        while self.current_token[0] == 'IDENTIFIER':
+            params.append(self.current_token[1])
+            self.eat('IDENTIFIER')
+            if self.current_token[0] == 'COMMA':
+                self.eat('COMMA')
+        self.eat('RPAREN')
         return params
 
     def parse_args(self):
@@ -140,9 +126,6 @@ class Parser:
 
             if self.current_token[0] == 'LAMBDA':
                 return self.parse_lambda_expr()
-
-            if self.current_token[0] == 'IF':
-                return self.parse_if_expr()
 
             raise Exception(f"Unexpected token: {self.current_token}")
 
