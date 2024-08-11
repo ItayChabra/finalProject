@@ -8,19 +8,33 @@ class Interpreter:
         self.call_stack = []
 
     def execute(self, node):
+        print(f"Executing node: {node}")  # Debug print
         if isinstance(node, FunctionDef):
             self.global_scope[node.name] = node
         elif isinstance(node, LambdaExpr):
             return node
         elif isinstance(node, BinOp):
-            left = self.execute(node.left)
-            right = self.execute(node.right)
-            return self.evaluate_binop(node.op, left, right)
+            if node.op == '||':
+                left = self.execute(node.left)
+                if left:
+                    return left
+                return self.execute(node.right)
+            elif node.op == '&&':
+                left = self.execute(node.left)
+                if not left:
+                    return left
+                return self.execute(node.right)
+            else:
+                left = self.execute(node.left)
+                right = self.execute(node.right)
+                return self.evaluate_binop(node.op, left, right)
         elif isinstance(node, UnaryOp):
             expr = self.execute(node.expr)
             return self.evaluate_unaryop(node.op, expr)
         elif isinstance(node, Variable):
-            return self.lookup_variable(node.name)
+            value = self.lookup_variable(node.name)
+            print(f"Variable {node.name} = {value}")  # Debug print
+            return value
         elif isinstance(node, Number):
             return node.value
         elif isinstance(node, Boolean):
@@ -31,7 +45,15 @@ class Interpreter:
             raise Exception(f"Unknown AST node: {node}")
 
     def evaluate_binop(self, op, left, right):
-        if op == '+':
+        if op == '&&':
+            return left and right
+        elif op == '||':
+            # Short-circuit evaluation for '||'
+            if left:
+                return left
+            else:
+                return right
+        elif op == '+':
             return left + right
         elif op == '-':
             return left - right
@@ -41,10 +63,6 @@ class Interpreter:
             return left / right
         elif op == '%':
             return left % right
-        elif op == '&&':
-            return left and right
-        elif op == '||':
-            return left or right
         elif op == '==':
             return left == right
         elif op == '!=':
@@ -75,15 +93,16 @@ class Interpreter:
         raise Exception(f"Undefined variable: {name}")
 
     def execute_call(self, node):
-        func = self.execute(node.func)  # Adjusted to execute the function node
+        func = self.lookup_variable(node.func)
         if isinstance(func, FunctionDef):
-            new_scope = {param: self.execute(arg) for param, arg in zip(func.params, node.args)}
+            # Create a new scope for function execution
+            new_scope = dict(zip(func.params, [self.execute(arg) for arg in node.args]))
             self.call_stack.append(new_scope)
             result = self.execute(func.body)
             self.call_stack.pop()
             return result
         elif isinstance(func, LambdaExpr):
-            new_scope = {param: self.execute(arg) for param, arg in zip(func.params, node.args)}
+            new_scope = dict(zip(func.params, [self.execute(arg) for arg in node.args]))
             self.call_stack.append(new_scope)
             result = self.execute(func.body)
             self.call_stack.pop()
@@ -118,3 +137,5 @@ class Interpreter:
 # interpreter = Interpreter()
 # interpreter.repl()  # For interactive mode
 # interpreter.run_program('example.lambda')  # For running a full program
+
+

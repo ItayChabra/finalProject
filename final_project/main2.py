@@ -14,3 +14,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#Defun { name: factorial, arguments: (n,) } (n == 0) || (n * factorial(n - 1))
