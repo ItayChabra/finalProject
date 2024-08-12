@@ -93,19 +93,29 @@ class Interpreter:
         raise Exception(f"Undefined variable: {name}")
 
     def execute_call(self, node):
-        func = self.lookup_variable(node.func)
-        if isinstance(func, FunctionDef):
+        # Check if the function being called is a lambda expression
+        if isinstance(node.func, LambdaExpr):
+            func = node.func
+        else:
+            # Lookup the function in the global scope or call stack
+            func = self.lookup_variable(node.func)
+
+        if isinstance(func, FunctionDef) or isinstance(func, LambdaExpr):
             # Create a new scope for function execution
             new_scope = dict(zip(func.params, [self.execute(arg) for arg in node.args]))
             self.call_stack.append(new_scope)
             result = self.execute(func.body)
             self.call_stack.pop()
-            return result
-        elif isinstance(func, LambdaExpr):
-            new_scope = dict(zip(func.params, [self.execute(arg) for arg in node.args]))
-            self.call_stack.append(new_scope)
-            result = self.execute(func.body)
-            self.call_stack.pop()
+
+            # If the result is a lambda expression, execute it with the remaining arguments
+            if isinstance(result, LambdaExpr):
+                remaining_args = node.args[1:]
+                # Merge the current scope with the new scope for the inner lambda
+                new_scope = {**new_scope, **dict(zip(result.params, [self.execute(arg) for arg in remaining_args]))}
+                self.call_stack.append(new_scope)
+                result = self.execute(result.body)
+                self.call_stack.pop()
+
             return result
         else:
             raise Exception(f"Unknown function: {node.func}")
