@@ -15,3 +15,6 @@ if __name__ == "__main__":
     main()
 
 #Defun { name: factorial, arguments: (n,) } (n == 0) || (n * factorial(n - 1))
+#
+#(Lambd x.(Lambd y.(x + y)))(3,5)
+#(x > 0) && (y < 10)
