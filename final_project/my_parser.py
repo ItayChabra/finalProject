@@ -127,71 +127,82 @@ class Parser:
 
     def parse_expression(self):
         print(f"Parsing expression with token: {self.current_token}")  # Debug
+        return self.parse_comparison_expr()
+
+    def parse_comparison_expr(self):
+        left = self.parse_boolean_expr()
+        while self.current_token[0] == 'COMP_OP':
+            op = self.current_token[1]
+            self.eat('COMP_OP')
+            right = self.parse_boolean_expr()
+            left = BinOp(left, op, right)
+        return left
+
+    def parse_boolean_expr(self):
+        left = self.parse_arithmetic_expr()
+        while self.current_token[0] == 'BOOL_OP':
+            op = self.current_token[1]
+            self.eat('BOOL_OP')
+            right = self.parse_arithmetic_expr()
+            left = BinOp(left, op, right)
+        return left
+
+    def parse_arithmetic_expr(self):
+        def parse_factor():
+            return self.parse_term()
 
         def parse_term():
-            if self.current_token[0] == 'IDENTIFIER':
-                if (self.pos + 1 < len(self.tokens) and self.tokens[self.pos + 1][0] == 'LPAREN'):
-                    return self.parse_function_call()  # Handle function calls, including lambda calls
-                identifier = Variable(self.current_token[1])
-                self.eat('IDENTIFIER')
-                return identifier
-
-            if self.current_token[0] == 'INTEGER':
-                number = Number(self.current_token[1])
-                self.eat('INTEGER')
-                return number
-
-            if self.current_token[0] == 'BOOLEAN':
-                boolean = Boolean(self.current_token[1])
-                self.eat('BOOLEAN')
-                return boolean
-
-            if self.current_token[0] == 'LPAREN':
-                self.eat('LPAREN')
-                expr = self.parse_expression()
-                self.eat('RPAREN')
-                # Check if the expression was a lambda expression and is followed by arguments (a lambda call)
-                if isinstance(expr, LambdaExpr) and self.current_token[0] == 'LPAREN':
-                    return self.parse_lambda_call(expr)
-                return expr
-
-            if self.current_token[0] == 'LAMBDA':
-                lambda_expr = self.parse_lambda_expr()
-                # Check if the lambda expression is followed by a lambda call (arguments)
-                if self.current_token[0] == 'LPAREN':
-                    return self.parse_lambda_call(lambda_expr)
-                return lambda_expr
-
-            raise Exception(f"Unexpected token: {self.current_token}")
-
-        def parse_arithmetic_expr():
-            left = parse_term()
-            while self.current_token[0] == 'ARITH_OP':
+            left = parse_factor()
+            while self.current_token[0] == 'ARITH_OP' and self.current_token[1] in ['*', '/']:
                 op = self.current_token[1]
                 self.eat('ARITH_OP')
-                right = parse_term()
+                right = parse_factor()
                 left = BinOp(left, op, right)
             return left
 
-        def parse_boolean_expr():
-            left = parse_arithmetic_expr()
-            while self.current_token[0] == 'BOOL_OP':
-                op = self.current_token[1]
-                self.eat('BOOL_OP')
-                right = parse_arithmetic_expr()
-                left = BinOp(left, op, right)
-            return left
+        left = parse_term()
+        while self.current_token[0] == 'ARITH_OP' and self.current_token[1] in ['+', '-']:
+            op = self.current_token[1]
+            self.eat('ARITH_OP')
+            right = parse_term()
+            left = BinOp(left, op, right)
+        return left
 
-        def parse_comparison_expr():
-            left = parse_boolean_expr()
-            while self.current_token[0] == 'COMP_OP':
-                op = self.current_token[1]
-                self.eat('COMP_OP')
-                right = parse_boolean_expr()
-                left = BinOp(left, op, right)
-            return left
+    def parse_term(self):
+        if self.current_token[0] == 'IDENTIFIER':
+            if (self.pos + 1 < len(self.tokens) and self.tokens[self.pos + 1][0] == 'LPAREN'):
+                return self.parse_function_call()  # Handle function calls, including lambda calls
+            identifier = Variable(self.current_token[1])
+            self.eat('IDENTIFIER')
+            return identifier
 
-        return parse_comparison_expr()
+        if self.current_token[0] == 'INTEGER':
+            number = Number(self.current_token[1])
+            self.eat('INTEGER')
+            return number
+
+        if self.current_token[0] == 'BOOLEAN':
+            boolean = Boolean(self.current_token[1])
+            self.eat('BOOLEAN')
+            return boolean
+
+        if self.current_token[0] == 'LPAREN':
+            self.eat('LPAREN')
+            expr = self.parse_expression()
+            self.eat('RPAREN')
+            # Check if the expression was a lambda expression and is followed by arguments (a lambda call)
+            if isinstance(expr, LambdaExpr) and self.current_token[0] == 'LPAREN':
+                return self.parse_lambda_call(expr)
+            return expr
+
+        if self.current_token[0] == 'LAMBDA':
+            lambda_expr = self.parse_lambda_expr()
+            # Check if the lambda expression is followed by a lambda call (arguments)
+            if self.current_token[0] == 'LPAREN':
+                return self.parse_lambda_call(lambda_expr)
+            return lambda_expr
+
+        raise Exception(f"Unexpected token: {self.current_token}")
 
     def parse_function_call(self):
         print(f"Parsing function call for: {self.current_token}")  # Debug
