@@ -34,7 +34,7 @@ def main():
         ''',
         # Lambda expression
         '''
-        (Lambd x.(Lambd y.(x+y)))
+        (Lambd x.(Lambd y.(x + y)))(3,5)
         ''',
         # Function application
         '''

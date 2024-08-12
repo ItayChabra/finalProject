@@ -1,14 +1,16 @@
 <program> ::= <statement> | <statement> <program>
 
-<statement> ::= <function_def> | <lambda_expr> | <function_call> | <boolean_expr> | <arithmetic_expr>
+<statement> ::= <function_def> | <lambda_expr> | <lambda_call> | <function_call> | <boolean_expr> | <arithmetic_expr>
 
 <function_def> ::= "Defun" "{" "name" ":" <identifier> "," "arguments" ":" <params> "," "}" <expression>
 
 <lambda_expr> ::= "Lambd" <params> "." <expression>
 
+<lambda_call> ::= <lambda_expr> "(" <args> ")"
+
 <function_call> ::= <identifier> "(" <args>? ")"
 
-<expression> ::= <arithmetic_expr> | <boolean_expr> | <function_call> | <lambda_expr> | <identifier> | <literal>
+<expression> ::= <arithmetic_expr> | <boolean_expr> | <function_call> | <lambda_expr> | <lambda_call> | <identifier> | <literal>
 
 <arithmetic_expr> ::= <term> | <term> <arithmetic_op> <arithmetic_expr>
 
@@ -18,7 +20,7 @@
 
 <params> ::= <identifier> | <identifier> "," <params>
 
-<args> ::= <expression> | <expression> "," <args>
+<args> ::= <expression> ("," <expression>)*
 
 <arithmetic_op> ::= "+" | "-" | "*" | "/" | "%"
 

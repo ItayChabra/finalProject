@@ -137,5 +137,3 @@ class Interpreter:
 # interpreter = Interpreter()
 # interpreter.repl()  # For interactive mode
 # interpreter.run_program('example.lambda')  # For running a full program
-
-

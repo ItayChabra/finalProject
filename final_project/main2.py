@@ -1,7 +1,6 @@
 from my_interpreter import Interpreter
 
 def main():
-    import sys
     if len(sys.argv) > 1:
         # Run the interpreter with a program file
         file_path = sys.argv[1]
