@@ -60,8 +60,7 @@ class Parser:
         self.eat('LBRACE')
         self.eat('IDENTIFIER')  # 'name'
         self.eat('COLON')
-        func_name = self.current_token[1]
-        self.eat('IDENTIFIER')
+        func_name = self.parse_identifier()
         self.eat('COMMA')
         self.eat('IDENTIFIER')  # 'arguments'
         self.eat('COLON')
@@ -75,9 +74,8 @@ class Parser:
         self.eat('LAMBDA')
         params = []
         while self.current_token[0] == 'IDENTIFIER':
-            params.append(self.current_token[1])
-            print(f"Lambda parameter: {self.current_token[1]}")  # Debug
-            self.eat('IDENTIFIER')
+            params.append(self.parse_identifier())
+            print(f"Lambda parameter: {params[-1]}")  # Debug
             if self.current_token[0] == 'COMMA':
                 self.eat('COMMA')
         self.eat('DOT')
@@ -101,9 +99,8 @@ class Parser:
         params = []
         self.eat('LPAREN')
         while self.current_token[0] == 'IDENTIFIER':
-            params.append(self.current_token[1])
-            print(f"Function parameter: {self.current_token[1]}")  # Debug
-            self.eat('IDENTIFIER')
+            params.append(self.parse_identifier())
+            print(f"Function parameter: {params[-1]}")  # Debug
             if self.current_token[0] == 'COMMA':
                 self.eat('COMMA')
         self.eat('RPAREN')
@@ -153,7 +150,7 @@ class Parser:
 
         def parse_term():
             left = parse_factor()
-            while self.current_token[0] == 'ARITH_OP' and self.current_token[1] in ['*', '/']:
+            while self.current_token[0] == 'ARITH_OP' and self.current_token[1] in ['*', '/', '%']:
                 op = self.current_token[1]
                 self.eat('ARITH_OP')
                 right = parse_factor()
@@ -169,24 +166,31 @@ class Parser:
         return left
 
     def parse_term(self):
-        if self.current_token[0] == 'IDENTIFIER':
+        if self.current_token[0] == 'NOT':
+            self.eat('NOT')
+
+            return UnaryOp('!', self.parse_term())
+        elif self.current_token[0] == 'ARITH_OP' and self.current_token[1] == '-':
+            self.eat('ARITH_OP')
+            return UnaryOp('-', self.parse_term())
+
+        elif self.current_token[0] == 'IDENTIFIER':
             if (self.pos + 1 < len(self.tokens) and self.tokens[self.pos + 1][0] == 'LPAREN'):
                 return self.parse_function_call()  # Handle function calls, including lambda calls
-            identifier = Variable(self.current_token[1])
-            self.eat('IDENTIFIER')
+            identifier = Variable(self.parse_identifier())
             return identifier
 
-        if self.current_token[0] == 'INTEGER':
+        elif self.current_token[0] == 'INTEGER':
             number = Number(self.current_token[1])
             self.eat('INTEGER')
             return number
 
-        if self.current_token[0] == 'BOOLEAN':
+        elif self.current_token[0] == 'BOOLEAN':
             boolean = Boolean(self.current_token[1])
             self.eat('BOOLEAN')
             return boolean
 
-        if self.current_token[0] == 'LPAREN':
+        elif self.current_token[0] == 'LPAREN':
             self.eat('LPAREN')
             expr = self.parse_expression()
             self.eat('RPAREN')
@@ -195,21 +199,28 @@ class Parser:
                 return self.parse_lambda_call(expr)
             return expr
 
-        if self.current_token[0] == 'LAMBDA':
+        elif self.current_token[0] == 'LAMBDA':
             lambda_expr = self.parse_lambda_expr()
             # Check if the lambda expression is followed by a lambda call (arguments)
             if self.current_token[0] == 'LPAREN':
                 return self.parse_lambda_call(lambda_expr)
             return lambda_expr
 
-        raise Exception(f"Unexpected token: {self.current_token}")
+        else:
+            raise Exception(f"Unexpected token: {self.current_token}")
 
     def parse_function_call(self):
         print(f"Parsing function call for: {self.current_token}")  # Debug
-        func_name = self.current_token[1]
-        self.eat('IDENTIFIER')
+        func_name = self.parse_identifier()
         self.eat('LPAREN')
         args = self.parse_args()
         self.eat('RPAREN')
         print(f"Function call '{func_name}' with args: {args}")  # Debug
         return Call(func_name, args)
+
+    def parse_identifier(self):
+        if self.current_token[0] == 'IDENTIFIER':
+            identifier = self.current_token[1]
+            self.eat('IDENTIFIER')
+            return identifier
+        raise Exception(f"Expected IDENTIFIER but got {self.current_token}")

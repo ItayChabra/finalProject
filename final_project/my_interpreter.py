@@ -80,6 +80,8 @@ class Interpreter:
     def evaluate_unaryop(self, op, expr):
         if op == '!':
             return not expr
+        elif op == '-':
+            return -expr
         else:
             raise Exception(f"Unknown unary operator: {op}")
 

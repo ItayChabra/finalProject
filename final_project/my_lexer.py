@@ -1,12 +1,13 @@
 import re
 
 # Define token patterns
+# Define token patterns
 token_patterns = [
     ('DEFUN', r'Defun'),                 # Matches function definition keyword
     ('LAMBDA', r'Lambd'),                # Matches lambda keyword
+    ('ARITH_OP', r'[+\-*/%]'),           # Matches arithmetic operators
     ('INTEGER', r'-?\d+'),               # Matches integers (including negative integers)
     ('BOOLEAN', r'TRUE|FALSE'),          # Matches boolean literals
-    ('ARITH_OP', r'[+\-*/%]'),           # Matches arithmetic operators
     ('BOOL_OP', r'&&|\|\|'),             # Matches boolean operators
     ('COMP_OP', r'==|!=|>|<|>=|<='),     # Matches comparison operators
     ('NOT', r'!'),                       # Matches the NOT operator
@@ -21,7 +22,6 @@ token_patterns = [
     ('COMMENT', r'#.*'),                 # Matches comments
     ('WHITESPACE', r'\s+'),              # Matches whitespace (will be ignored)
 ]
-
 
 # Combine all patterns into a single regex
 master_pattern = '|'.join(f'(?P<{name}>{pattern})' for name, pattern in token_patterns)
