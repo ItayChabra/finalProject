@@ -15,6 +15,11 @@ if __name__ == "__main__":
     main()
 
 #Defun { name: factorial, arguments: (n,) } (n == 0) || (n * factorial(n - 1))
+#factorial(5)
+#Defun {name: sum_to_n, arguments: (n,)} (n == 0) || (n + sum_to_n(n - 1))
+#sum_to_n(10)
+
+#Defun {name: sum_to_n, arguments: (n)} (n == 0) ? 0 : (n + sum_to_n(n - 1))
 #(Lambd x.(Lambd y.(x + y)))(factorial(5),5)
 #(Lambd x.(Lambd y.(x + y)))(3,5)
 #(x > 0) && (y < 10)

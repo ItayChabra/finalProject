@@ -98,14 +98,18 @@ class Interpreter:
 
         if isinstance(func, FunctionDef) or isinstance(func, LambdaExpr):
             new_scope = dict(zip(func.params, [self.execute(arg) for arg in node.args]))
-            self.global_scope.update(new_scope)  # Store variables globally
+            self.call_stack.append(self.global_scope.copy())  # Save the current global scope
+            self.global_scope.update(new_scope)  # Store variables locally
             result = self.execute(func.body)
+            self.global_scope = self.call_stack.pop()  # Restore the previous global scope
 
             if isinstance(result, LambdaExpr):
                 remaining_args = node.args[1:]
                 new_scope = {**new_scope, **dict(zip(result.params, [self.execute(arg) for arg in remaining_args]))}
+                self.call_stack.append(self.global_scope.copy())  # Save the current global scope
                 self.global_scope.update(new_scope)
                 result = self.execute(result.body)
+                self.global_scope = self.call_stack.pop()  # Restore the previous global scope
 
             return result
         else:
