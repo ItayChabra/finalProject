@@ -37,7 +37,6 @@ def cumulative_sum_of_squares(list_of_lists):
         )
     )
 
-# Example usage:
 input_lists = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
 result = cumulative_sum_of_squares(input_lists)
 print(result)
@@ -68,7 +67,6 @@ print("Task 5:")
 
 nums = [1, 2, 3, 4, 5, 6]
 sum_squared = reduce(lambda total, x: total + x, map(lambda x: x**2, filter(lambda x: x % 2 == 0, nums)))
-
 print(sum_squared)
 
 print()
@@ -76,7 +74,6 @@ print()
 print("Task 6:")
 
 count_palindromes = lambda lst: list(map(lambda sublist: reduce(lambda total, x: total + 1, filter(lambda s: s == s[::-1], sublist), 0), lst))
-
 lst = [['wow', 'hello', 'level'], ['programming languages', 'lol'], ['amazing', 'racecar']]
 result = count_palindromes(lst)
 print(result)  # Output: [2, 1, 1]
@@ -101,5 +98,10 @@ print("Task 7:")
 # This means the program doesn’t need to store all the values in memory, making it more efficient.
 
 print()
-###Task 7###
-print("Task 7:")
+###Task 8###
+print("Task 8:")
+
+prime_desc = lambda lst: sorted([x for x in lst if x > 1 and all(x % i != 0 for i in range(2, int(x**0.5) + 1))], reverse=True)
+sample_list = [10, 3, 5, 7, 11, 4, 6, 13, 17, 19, 23, 29, 31]
+result = prime_desc(sample_list)
+print(result)
