@@ -34,6 +34,7 @@ if __name__ == "__main__":
 #(Lambd x.(Lambd y.(x + y)))(factorial(5),5)
 #(Lambd x.(Lambd y.(x + y)))(3,5)
 #(Lambd x.(Lambd y.(Lambd z. (x + y + z))))(1, 2, 3)
+#(Lambd t.(Lambd x.(Lambd y.(Lambd z. (x + y + z + t)))))(1, 2, 3, 4)
 
 #(x > 0) && (y < 10)
 #(x > 0) && !(y < 10)

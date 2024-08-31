@@ -2,6 +2,10 @@ from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable,
 from my_lexer import tokenize
 from my_parser import Parser
 
+class Closure:
+    def __init__(self, func, env):
+        self.func = func
+        self.env = env
 
 class Interpreter:
     def __init__(self):
@@ -13,7 +17,7 @@ class Interpreter:
         if isinstance(node, FunctionDef):
             self.global_scope[node.name] = node
         elif isinstance(node, LambdaExpr):
-            return node
+            return Closure(node, self.global_scope.copy())
         elif isinstance(node, BinOp):
             if node.op == '||':
                 left = self.execute(node.left)
@@ -55,10 +59,7 @@ class Interpreter:
         if op == '&&':
             return left and right
         elif op == '||':
-            if left:
-                return left
-            else:
-                return right
+            return left or right
         elif op == '+':
             return left + right
         elif op == '-':
@@ -95,30 +96,49 @@ class Interpreter:
             raise Exception(f"Unknown unary operator: {op}")
 
     def lookup_variable(self, name):
+        # Check the current scope first
         if name in self.global_scope:
             return self.global_scope[name]
+        # Check the call stack for closures
+        for scope in reversed(self.call_stack):
+            if name in scope:
+                return scope[name]
         raise Exception(f"Undefined variable: {name}")
 
     def execute_call(self, node):
-        if isinstance(node.func, LambdaExpr):
+        if isinstance(node.func, Closure):
+            func = node.func.func
+            env = node.func.env
+        elif isinstance(node.func, LambdaExpr):
             func = node.func
+            env = self.global_scope.copy()
         else:
             func = self.lookup_variable(node.func)
+            env = self.global_scope.copy()
 
         if isinstance(func, FunctionDef) or isinstance(func, LambdaExpr):
-            new_scope = dict(zip(func.params, [self.execute(arg) for arg in node.args]))
-            self.call_stack.append(self.global_scope.copy())  # Save the current global scope
-            self.global_scope.update(new_scope)  # Store variables locally
-            result = self.execute(func.body)
-            self.global_scope = self.call_stack.pop()  # Restore the previous global scope
+            evaluated_args = [self.execute(arg) for arg in node.args]
 
-            if isinstance(result, LambdaExpr):
-                remaining_args = node.args[1:]
-                new_scope = {**new_scope, **dict(zip(result.params, [self.execute(arg) for arg in remaining_args]))}
-                self.call_stack.append(self.global_scope.copy())  # Save the current global scope
-                self.global_scope.update(new_scope)
-                result = self.execute(result.body)
-                self.global_scope = self.call_stack.pop()  # Restore the previous global scope
+            if isinstance(func, FunctionDef):
+                func_params = func.params
+                func_body = func.body
+            else:  # LambdaExpr
+                func_params = func.params
+                func_body = func.body
+
+            new_scope = env.copy()
+            new_scope.update(dict(zip(func_params, evaluated_args)))
+            self.call_stack.append(self.global_scope.copy())
+            self.global_scope = new_scope
+
+            result = self.execute(func_body)
+
+            self.global_scope = self.call_stack.pop()
+
+            # If the result is another Closure, execute it with the remaining arguments
+            while isinstance(result, Closure) and len(node.args) > len(func_params):
+                remaining_args = node.args[len(func_params):]
+                result = self.execute(Call(func=result, args=remaining_args))
 
             return result
         else:
@@ -133,7 +153,7 @@ class Interpreter:
                 ast = parser.parse()
                 for node in ast:
                     result = self.execute(node)
-                    print(result)
+                    print(result)  # Ensure this line is present
             except Exception as e:
                 print(e)
 
@@ -145,9 +165,10 @@ class Interpreter:
         ast = parser.parse()
         for node in ast:
             result = self.execute(node)
-            print(result)
+            print(result)  # Ensure this line is present
 
 # Example usage:
 # interpreter = Interpreter()
 # interpreter.repl()  # For interactive mode
 # interpreter.run_program('example.lambda')  # For running a full program
+
