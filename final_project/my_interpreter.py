@@ -1,6 +1,7 @@
-from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable, Number, Boolean, Call
+from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable, Number, Boolean, Call, Conditional
 from my_lexer import tokenize
 from my_parser import Parser
+
 
 class Interpreter:
     def __init__(self):
@@ -41,6 +42,12 @@ class Interpreter:
             return node.value
         elif isinstance(node, Call):
             return self.execute_call(node)
+        elif isinstance(node, Conditional):
+            condition = self.execute(node.condition)
+            if condition:
+                return self.execute(node.true_expr)
+            else:
+                return self.execute(node.false_expr)
         else:
             raise Exception(f"Unknown AST node: {node}")
 
@@ -59,7 +66,9 @@ class Interpreter:
         elif op == '*':
             return left * right
         elif op == '/':
-            return left / right
+            if right == 0:
+                raise ZeroDivisionError("Error: Division by zero")
+            return left // right
         elif op == '%':
             return left % right
         elif op == '==':
@@ -137,7 +146,6 @@ class Interpreter:
         for node in ast:
             result = self.execute(node)
             print(result)
-
 
 # Example usage:
 # interpreter = Interpreter()

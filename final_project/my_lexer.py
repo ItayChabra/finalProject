@@ -19,6 +19,7 @@ token_patterns = [
     ('DOT', r'\.'),                      # Matches dot in lambda expressions
     ('LBRACE', r'\{'),                   # Matches left curly brace
     ('RBRACE', r'\}'),                   # Matches right curly brace
+    ('QUESTION', r'\?'),                 # Matches question mark in conditional expressions
     ('COMMENT', r'#.*'),                 # Matches comments
     ('WHITESPACE', r'\s+'),              # Matches whitespace (will be ignored)
 ]

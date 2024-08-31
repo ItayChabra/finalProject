@@ -63,3 +63,14 @@ class Call(ASTNode):
 
     def __repr__(self):
         return f"Call(func={self.func}, args={self.args})"
+
+class Conditional(ASTNode):
+    def __init__(self, condition, true_expr, false_expr):
+        self.condition = condition
+        self.true_expr = true_expr
+        self.false_expr = false_expr
+
+    def __repr__(self):
+        return (f"Conditional(condition={self.condition}, "
+                f"true_expr={self.true_expr}, false_expr={self.false_expr})")
+

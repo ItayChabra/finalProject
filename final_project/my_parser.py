@@ -1,4 +1,4 @@
-from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable, Number, Boolean, Call
+from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable, Number, Boolean, Call, Conditional
 
 class Parser:
     def __init__(self, tokens, bnf_file_path):
@@ -124,7 +124,18 @@ class Parser:
 
     def parse_expression(self):
         print(f"Parsing expression with token: {self.current_token}")  # Debug
-        return self.parse_comparison_expr()
+        expr = self.parse_comparison_expr()
+        if self.current_token[0] == 'QUESTION':
+            return self.parse_conditional_expr(expr)
+        return expr
+
+    def parse_conditional_expr(self, condition):
+        print("Parsing conditional expression")  # Debug
+        self.eat('QUESTION')  # Expect the '?' token
+        true_branch = self.parse_expression()  # Parse the true branch
+        self.eat('COLON')  # Expect the ':' token
+        false_branch = self.parse_expression()  # Parse the false branch
+        return Conditional(condition, true_branch, false_branch)
 
     def parse_comparison_expr(self):
         left = self.parse_boolean_expr()
@@ -168,28 +179,23 @@ class Parser:
     def parse_term(self):
         if self.current_token[0] == 'NOT':
             self.eat('NOT')
-
             return UnaryOp('!', self.parse_term())
         elif self.current_token[0] == 'ARITH_OP' and self.current_token[1] == '-':
             self.eat('ARITH_OP')
             return UnaryOp('-', self.parse_term())
-
         elif self.current_token[0] == 'IDENTIFIER':
             if (self.pos + 1 < len(self.tokens) and self.tokens[self.pos + 1][0] == 'LPAREN'):
                 return self.parse_function_call()  # Handle function calls, including lambda calls
             identifier = Variable(self.parse_identifier())
             return identifier
-
         elif self.current_token[0] == 'INTEGER':
             number = Number(self.current_token[1])
             self.eat('INTEGER')
             return number
-
         elif self.current_token[0] == 'BOOLEAN':
             boolean = Boolean(self.current_token[1])
             self.eat('BOOLEAN')
             return boolean
-
         elif self.current_token[0] == 'LPAREN':
             self.eat('LPAREN')
             expr = self.parse_expression()
@@ -198,14 +204,12 @@ class Parser:
             if isinstance(expr, LambdaExpr) and self.current_token[0] == 'LPAREN':
                 return self.parse_lambda_call(expr)
             return expr
-
         elif self.current_token[0] == 'LAMBDA':
             lambda_expr = self.parse_lambda_expr()
             # Check if the lambda expression is followed by a lambda call (arguments)
             if self.current_token[0] == 'LPAREN':
                 return self.parse_lambda_call(lambda_expr)
             return lambda_expr
-
         else:
             raise Exception(f"Unexpected token: {self.current_token}")
 
