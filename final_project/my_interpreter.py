@@ -2,10 +2,12 @@ from AST_Node import ASTNode, FunctionDef, LambdaExpr, BinOp, UnaryOp, Variable,
 from my_lexer import tokenize
 from my_parser import Parser
 
+
 class Closure:
     def __init__(self, func, env):
         self.func = func
         self.env = env
+
 
 class Interpreter:
     def __init__(self):
@@ -13,7 +15,7 @@ class Interpreter:
         self.call_stack = []
 
     def execute(self, node):
-        print(f"Executing node: {node}")  # Debug print
+        # print(f"Executing node: {node}")  # Debug print
         if isinstance(node, FunctionDef):
             self.global_scope[node.name] = node
         elif isinstance(node, LambdaExpr):
@@ -38,7 +40,7 @@ class Interpreter:
             return self.evaluate_unaryop(node.op, expr)
         elif isinstance(node, Variable):
             value = self.lookup_variable(node.name)
-            print(f"Variable {node.name} = {value}")  # Debug print
+            # print(f"Variable {node.name} = {value}")  # Debug print
             return value
         elif isinstance(node, Number):
             return node.value
@@ -68,7 +70,7 @@ class Interpreter:
             return left * right
         elif op == '/':
             if right == 0:
-                raise ZeroDivisionError("Error: Division by zero")
+                raise ZeroDivisionError("Error: Cannot divide by zero")
             return left // right
         elif op == '%':
             return left % right
@@ -116,6 +118,12 @@ class Interpreter:
             func = self.lookup_variable(node.func)
             env = self.global_scope.copy()
 
+        # Check if the function is a named FunctionDef (not a lambda)
+        if isinstance(func, FunctionDef):
+            # Perform argument count check only for named functions
+            if len(node.args) != len(func.params):
+                raise Exception(f"Error: {func.name} expects {len(func.params)} arguments but got {len(node.args)}")
+
         if isinstance(func, FunctionDef) or isinstance(func, LambdaExpr):
             evaluated_args = [self.execute(arg) for arg in node.args]
 
@@ -149,26 +157,33 @@ class Interpreter:
             try:
                 code = input(">>> ")
                 tokens = tokenize(code)
-                parser = Parser(tokens, 'BNF.txt')
+                parser = Parser(tokens)
                 ast = parser.parse()
+                print(ast)
                 for node in ast:
                     result = self.execute(node)
-                    print(result)  # Ensure this line is present
+                    if (result != None):
+                        print(result)  # Ensure this line is present
+                        print()
             except Exception as e:
                 print(e)
+                print()
+
 
     def run_program(self, file_path):
         with open(file_path, 'r') as file:
             code = file.read()
-        tokens = tokenize(code)
-        parser = Parser(tokens, 'BNF.txt')
-        ast = parser.parse()
+            tokens = tokenize(code)
+            parser = Parser(tokens)
+            ast = parser.parse()
         for node in ast:
-            result = self.execute(node)
-            print(result)  # Ensure this line is present
-
-# Example usage:
-# interpreter = Interpreter()
-# interpreter.repl()  # For interactive mode
-# interpreter.run_program('example.lambda')  # For running a full program
+            print(node)
+            try:
+                result = self.execute(node)
+                if (result != None):
+                    print(result)  # Ensure this line is present
+                    print()
+            except Exception as e:
+                print(e)
+                print()
 

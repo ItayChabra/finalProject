@@ -2,10 +2,8 @@ from functools import reduce
 
 ###Task 1###
 print("Task 1:")
-fib = lambda n: (lambda f: f(f, n))(
-    lambda self, x, a=0, b=1: [] if x == 0 else [a] + self(self, x - 1, b, a + b)
-)
-print(fib(10))
+fibonacci = lambda n, a=0, b=1: [a] + fibonacci(n-1, b, a+b) if n > 0 else []
+print(fibonacci(10))
 
 print()
 ###Task 2###
@@ -82,22 +80,19 @@ print()
 ###Task 7###
 print("Task 7:")
 
-# Lazy evaluation is a technique where values are only computed when they are actually needed, rather than all at once.
-# This can make programs more efficient by saving time and memory.
-#
-# Eager Evaluation:
-# In the first part of the program, eager evaluation is used.
-# Here, the function that generates values is called, and all the values are created and stored in a list immediately.
-# This means the program runs through the entire sequence, generating all values at once, and then processes each value to compute its square.
-# This approach can be inefficient if the dataset is large because it requires storing all the values in memory at once.
-#
-# Lazy Evaluation:
-# In the second part of the program, lazy evaluation is demonstrated.
-# Instead of generating all values at once, the program creates each value only when it is needed.
-# The function that generates values is used directly in the list comprehension, so it produces one value at a time as the list comprehension processes each value to compute its square.
-# This means the program doesn’t need to store all the values in memory, making it more efficient.
+print("Lazy evaluation is a technique where values are only computed when they are actually needed, rather than all at once.\n"
+          "This can make programs more efficient by saving time and memory.\n\n"
+          "Eager Evaluation:\n"
+          "In the first part of the program, eager evaluation is used.\n"
+          "Here, the function that generates values is called, and all the values are created and stored in a list immediately.\n"
+          "This means the program runs through the entire sequence, generating all values at once, and then processes each value to compute its square.\n"
+          "This approach can be inefficient if the dataset is large because it requires storing all the values in memory at once.\n\n"
+          "Lazy Evaluation:\n"
+          "In the second part of the program, lazy evaluation is demonstrated.\n"
+          "Instead of generating all values at once, the program creates each value only when it is needed.\n"
+          "The function that generates values is used directly in the list comprehension,\nso it produces one value at a time as the list comprehension processes each value to compute its square.\n"
+          "This means the program doesn’t need to store all the values in memory, making it more efficient.\n")
 
-print()
 ###Task 8###
 print("Task 8:")
 

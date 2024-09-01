@@ -18,6 +18,8 @@
 
 <comparison_expr> ::= <term> | <term> <comparison_op> <comparison_expr>
 
+<conditional_expr> ::= <boolean_expr> "?" <expression> ":" <expression>
+
 <params> ::= <identifier> | <identifier> "," <params>
 
 <args> ::= <expression> ("," <expression>)*
@@ -27,8 +29,6 @@
 <boolean_op> ::= "&&" | "||"
 
 <comparison_op> ::= "==" | "!=" | ">" | "<" | ">=" | "<="
-
-<conditional_expr> ::= <boolean_expr> "?" <expression> ":" <expression>
 
 <literal> ::= <integer> | <boolean>
 

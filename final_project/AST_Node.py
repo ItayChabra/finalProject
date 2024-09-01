@@ -73,4 +73,3 @@ class Conditional(ASTNode):
     def __repr__(self):
         return (f"Conditional(condition={self.condition}, "
                 f"true_expr={self.true_expr}, false_expr={self.false_expr})")
-
