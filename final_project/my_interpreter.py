@@ -15,12 +15,15 @@ class Interpreter:
         self.call_stack = []
 
     def execute(self, node):
-        # print(f"Executing node: {node}")  # Debug print
+        # Execute the given AST node based on its type
         if isinstance(node, FunctionDef):
+            # Store function definitions in the global scope
             self.global_scope[node.name] = node
         elif isinstance(node, LambdaExpr):
+            # Return a closure for lambda expressions
             return Closure(node, self.global_scope.copy())
         elif isinstance(node, BinOp):
+            # Handle binary operations
             if node.op == '||':
                 left = self.execute(node.left)
                 if left:
@@ -36,19 +39,24 @@ class Interpreter:
                 right = self.execute(node.right)
                 return self.evaluate_binop(node.op, left, right)
         elif isinstance(node, UnaryOp):
+            # Handle unary operations
             expr = self.execute(node.expr)
             return self.evaluate_unaryop(node.op, expr)
         elif isinstance(node, Variable):
+            # Look up variable values
             value = self.lookup_variable(node.name)
-            # print(f"Variable {node.name} = {value}")  # Debug print
             return value
         elif isinstance(node, Number):
+            # Return number values directly
             return node.value
         elif isinstance(node, Boolean):
+            # Return boolean values directly
             return node.value
         elif isinstance(node, Call):
+            # Handle function calls
             return self.execute_call(node)
         elif isinstance(node, Conditional):
+            # Handle conditional expressions
             condition = self.execute(node.condition)
             if condition:
                 return self.execute(node.true_expr)
@@ -58,6 +66,7 @@ class Interpreter:
             raise Exception(f"Unknown AST node: {node}")
 
     def evaluate_binop(self, op, left, right):
+        # Evaluate binary operations
         if op == '&&':
             return left and right
         elif op == '||':
@@ -90,6 +99,7 @@ class Interpreter:
             raise Exception(f"Unknown operator: {op}")
 
     def evaluate_unaryop(self, op, expr):
+        # Evaluate unary operations
         if op == '!':
             return not expr
         elif op == '-':
@@ -98,16 +108,16 @@ class Interpreter:
             raise Exception(f"Unknown unary operator: {op}")
 
     def lookup_variable(self, name):
-        # Check the current scope first
+        # Look up variable values in the current scope and call stack
         if name in self.global_scope:
             return self.global_scope[name]
-        # Check the call stack for closures
         for scope in reversed(self.call_stack):
             if name in scope:
                 return scope[name]
         raise Exception(f"Undefined variable: {name}")
 
     def execute_call(self, node):
+        # Execute function calls
         if isinstance(node.func, Closure):
             func = node.func.func
             env = node.func.env
@@ -125,6 +135,7 @@ class Interpreter:
                 raise Exception(f"Error: {func.name} expects {len(func.params)} arguments but got {len(node.args)}")
 
         if isinstance(func, FunctionDef) or isinstance(func, LambdaExpr):
+            # Evaluate arguments
             evaluated_args = [self.execute(arg) for arg in node.args]
 
             if isinstance(func, FunctionDef):
@@ -134,13 +145,16 @@ class Interpreter:
                 func_params = func.params
                 func_body = func.body
 
+            # Create a new scope for the function call
             new_scope = env.copy()
             new_scope.update(dict(zip(func_params, evaluated_args)))
             self.call_stack.append(self.global_scope.copy())
             self.global_scope = new_scope
 
+            # Execute the function body
             result = self.execute(func_body)
 
+            # Restore the previous scope
             self.global_scope = self.call_stack.pop()
 
             # If the result is another Closure, execute it with the remaining arguments
@@ -153,6 +167,7 @@ class Interpreter:
             raise Exception(f"Unknown function: {node.func}")
 
     def repl(self):
+        # Read-Eval-Print Loop (REPL) for interactive execution
         while True:
             try:
                 code = input(">>> ")
@@ -163,14 +178,14 @@ class Interpreter:
                 for node in ast:
                     result = self.execute(node)
                     if (result != None):
-                        print(result)  # Ensure this line is present
+                        print(result)
                         print()
             except Exception as e:
                 print(e)
                 print()
 
-
     def run_program(self, file_path):
+        # Execute a program from a file
         with open(file_path, 'r') as file:
             code = file.read()
             tokens = tokenize(code)
@@ -181,9 +196,8 @@ class Interpreter:
             try:
                 result = self.execute(node)
                 if (result != None):
-                    print(result)  # Ensure this line is present
+                    print(result)
                     print()
             except Exception as e:
                 print(e)
                 print()
-
