@@ -79,7 +79,7 @@ class Interpreter:
             return left * right
         elif op == '/':
             if right == 0:
-                raise ZeroDivisionError("Error: Cannot divide by zero")
+                raise ZeroDivisionError("Error: Division by zero")
             return left // right
         elif op == '%':
             return left % right
@@ -168,16 +168,20 @@ class Interpreter:
 
     def repl(self):
         # Read-Eval-Print Loop (REPL) for interactive execution
+        print("Type 'exit' or 'quit' to leave the interactive mode.")
         while True:
             try:
                 code = input(">>> ")
+                if code.lower() in {'exit', 'quit'}:
+                    print("Goodbye!")
+                    break
                 tokens = tokenize(code)
                 parser = Parser(tokens)
                 ast = parser.parse()
                 print(ast)
                 for node in ast:
                     result = self.execute(node)
-                    if (result != None):
+                    if result is not None:
                         print(result)
                         print()
             except Exception as e:
@@ -186,18 +190,31 @@ class Interpreter:
 
     def run_program(self, file_path):
         # Execute a program from a file
-        with open(file_path, 'r') as file:
-            code = file.read()
+        try:
+            with open(file_path, 'r') as file:
+                code = file.read()
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found.")
+            return
+        except Exception as e:
+            print(f"An error occurred while reading the file: {e}")
+            return
+
+        try:
             tokens = tokenize(code)
             parser = Parser(tokens)
             ast = parser.parse()
+        except Exception as e:
+            print(f"An error occurred while parsing the code: {e}")
+            return
+
         for node in ast:
             print(node)
             try:
                 result = self.execute(node)
-                if (result != None):
+                if result is not None:
                     print(result)
                     print()
             except Exception as e:
-                print(e)
+                print(f"An error occurred during execution: {e}")
                 print()

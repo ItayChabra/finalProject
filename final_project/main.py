@@ -8,6 +8,7 @@ def main():
         interpreter = Interpreter()
         interpreter.run_program(file_path)
     else:
+        print("Welcome to My Interpreter!")
         # Run the interpreter in interactive mode
         interpreter = Interpreter()
         interpreter.repl()

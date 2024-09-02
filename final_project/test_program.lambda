@@ -4,7 +4,7 @@ Defun { name: factorial, arguments: (n,) } (n == 0) ? 1 : (n * factorial(n - 1))
 factorial(5)
 # Expected output: 120
 
-# 2. Recursive function to sum numbers from n to 0
+# 2. Test for "while loop" : Recursive function to sum numbers from n to 0
 Defun {name: sum_to_n, arguments: (n)} (n == 0) ? 0 : (n + sum_to_n(n - 1))
 # Test sum_to_n
 sum_to_n(10)
