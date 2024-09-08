@@ -1,6 +1,6 @@
 <program> ::= <statement> | <statement> <program>
 
-<statement> ::= <function_def> | <lambda_expr> | <lambda_call> | <function_call> | <boolean_expr> | <arithmetic_expr> | <conditional_expr>
+<statement> ::= <function_def> | <lambda_call> | <function_call> | <boolean_expr> | <arithmetic_expr> | <conditional_expr>
 
 <function_def> ::= "Defun" "{" "name" ":" <identifier> "," "arguments" ":" <params> "," "}" <expression>
 
@@ -10,7 +10,7 @@
 
 <function_call> ::= <identifier> "(" <args>? ")"
 
-<expression> ::= <arithmetic_expr> | <boolean_expr> | <function_call> | <lambda_expr> | <lambda_call> | <identifier> | <literal> | <conditional_expr> | <comparison_expr>
+<expression> ::= <arithmetic_expr> | <boolean_expr> | <function_call> | <lambda_call> | <literal> | <conditional_expr> | <comparison_expr>
 
 <arithmetic_expr> ::= <term> | <term> <arithmetic_op> <arithmetic_expr>
 
@@ -22,7 +22,9 @@
 
 <params> ::= <identifier> | <identifier> "," <params>
 
-<args> ::= <expression> ("," <expression>)*
+<term> ::= <literal> | "(" <expression> ")"
+
+<args> ::= <expression> | <expression> "," <args>
 
 <arithmetic_op> ::= "+" | "-" | "*" | "/" | "%"
 
@@ -38,4 +40,3 @@
 
 <boolean> ::= "TRUE" | "FALSE"
 
-<term> ::= <identifier> | <literal> | "(" <expression> ")"
